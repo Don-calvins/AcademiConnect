@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Collaboration Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        }
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid white;
+        }
+        .active-tab {
+            border-bottom: 3px solid #4F46E5;
+            color: #4F46E5;
+            font-weight: 600;
+        }
+        .file-upload {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .file-upload:hover {
+            border-color: #4F46E5;
+            background-color: #f8fafc;
+        }
+        .chat-bubble {
+            max-width: 70%;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .user-bubble {
+            background-color: #4F46E5;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+        .tutor-bubble {
+            background-color: #e2e8f0;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+        .quote-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background-color: #4F46E5;
+            transition: width 0.4s ease;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            font-size: 2rem;
+            color: #cbd5e0;
+            cursor: pointer;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 gradient-bg text-white">
+                <div class="flex items-center justify-center h-16 px-4">
+                    <h1 class="text-2xl font-bold">AcademiConnect</h1>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <div class="space-y-1">
+                        <div class="sidebar-item px-4 py-3 rounded-lg flex items-center space-x-3 cursor-pointer">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="sidebar-item px-4 py-3 rounded-lg flex items-center space-x-3 cursor-pointer">
+                            <i class="fas fa-tasks"></i>
+                            <span>My Assignments</span>
+                        </div>
+                        <div class="sidebar-item px-4 py-3 rounded-lg flex items-center space-x-3 cursor-pointer">
+                            <i class="fas fa-comments"></i>
+                            <span>Messages</span>
+                        </div>
+                        <div class="sidebar-item px-4 py-3 rounded-lg flex items-center space-x-3 cursor-pointer">
+                            <i class="fas fa-wallet"></i>
+                            <span>Payments</span>
+                        </div>
+                        <div class="sidebar-item px-4 py-3 rounded-lg flex items-center space-x-3 cursor-pointer">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </div>
+                        <div class="sidebar-item px-4 py-3 rounded-lg flex items-center space-x-3 cursor-pointer">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-4 border-t border-blue-400">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-medium">Sarah Johnson</p>
+                            <p class="text-sm text-blue-200">Client</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top Navigation -->
+            <div class="flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200">
+                <div class="flex items-center">
+                    <button class="md:hidden mr-4">
+                        <i class="fas fa-bars text-gray-500"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">Assignment Workflow</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-1 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="relative p-1 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-envelope"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="flex-1 overflow-auto p-6">
+                <!-- Workflow Tabs -->
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button id="client-tab" class="px-4 py-2 font-medium active-tab">Client Workflow</button>
+                    <button id="tutor-tab" class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">Tutor Workflow</button>
+                </div>
+
+                <!-- Client Workflow Content -->
+                <div id="client-content" class="space-y-8">
+                    <!-- Step 1: Post Assignment -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">1</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Post Assignment</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Assignment Title</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Subject/Category</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option>Mathematics</option>
+                                        <option>Physics</option>
+                                        <option>Computer Science</option>
+                                        <option>Engineering</option>
+                                        <option>Business</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Provide detailed instructions for your assignment..."></textarea>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+                                <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Files</label>
+                                <div class="file-upload mt-1 flex justify-center px-6 pt-5 pb-6 border-2 rounded-md">
+                                    <div class="space-y-1 text-center">
+                                        <div class="flex text-sm text-gray-600 justify-center">
+                                            <label class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
+                                                <span>Upload files</span>
+                                                <input type="file" class="sr-only" multiple>
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PDF, DOCX, PPT up to 10MB</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    Post Assignment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Review Quotes -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">2</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Review Quotes</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="mb-4">
+                                <h4 class="font-medium text-gray-700">Received Quotes (3)</h4>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- Quote 1 -->
+                                <div class="quote-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Tutor" class="w-10 h-10 rounded-full">
+                                            <div>
+                                                <p class="font-medium">Dr. Michael Chen</p>
+                                                <p class="text-sm text-gray-500">Mathematics Professor</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-indigo-600">$120</p>
+                                            <p class="text-sm text-gray-500">Due in 5 days</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-sm text-gray-600">
+                                        <p>"I have extensive experience in calculus and can guarantee high-quality work with detailed explanations for each step."</p>
+                                    </div>
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <div class="flex space-x-2">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">4.9 ★</span>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">87 jobs</span>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Chat</button>
+                                            <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">Accept</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quote 2 -->
+                                <div class="quote-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Tutor" class="w-10 h-10 rounded-full">
+                                            <div>
+                                                <p class="font-medium">Prof. Emily Rodriguez</p>
+                                                <p class="text-sm text-gray-500">Mathematics Tutor</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-indigo-600">$95</p>
+                                            <p class="text-sm text-gray-500">Due in 7 days</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-sm text-gray-600">
+                                        <p>"I specialize in helping students understand complex mathematical concepts. I'll provide step-by-step solutions with explanations."</p>
+                                    </div>
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <div class="flex space-x-2">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">4.7 ★</span>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">42 jobs</span>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Chat</button>
+                                            <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">Accept</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quote 3 -->
+                                <div class="quote-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Tutor" class="w-10 h-10 rounded-full">
+                                            <div>
+                                                <p class="font-medium">Dr. James Wilson</p>
+                                                <p class="text-sm text-gray-500">Mathematics PhD</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-indigo-600">$150</p>
+                                            <p class="text-sm text-gray-500">Due in 3 days</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-sm text-gray-600">
+                                        <p>"As a university lecturer with 15 years experience, I can deliver exceptional quality work with academic rigor."</p>
+                                    </div>
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <div class="flex space-x-2">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">5.0 ★</span>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">126 jobs</span>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Chat</button>
+                                            <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">Accept</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Initial Payment -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">3</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Initial Payment (50%)</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg">
+                                <div class="text-center mb-6">
+                                    <h4 class="font-medium text-lg">Payment Summary</h4>
+                                    <p class="text-gray-500 text-sm">Secure payment processed by Stripe</p>
+                                </div>
+                                
+                                <div class="space-y-4 mb-6">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Assignment:</span>
+                                        <span class="font-medium">Calculus Problem Set</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Tutor:</span>
+                                        <span class="font-medium">Dr. Michael Chen</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Amount:</span>
+                                        <span class="font-bold">$120.00</span>
+                                    </div>
+                                    <div class="flex justify-between border-t border-gray-200 pt-2">
+                                        <span class="text-gray-600">Initial Payment (50%):</span>
+                                        <span class="font-bold text-indigo-600">$60.00</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center">
+                                            <input id="credit-card" name="payment-method" type="radio" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                            <label for="credit-card" class="ml-3 block text-sm font-medium text-gray-700">
+                                                Credit/Debit Card
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="paypal" name="payment-method" type="radio" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                            <label for="paypal" class="ml-3 block text-sm font-medium text-gray-700">
+                                                PayPal
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="credit-card-form" class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                                        <input type="text" placeholder="1234 5678 9012 3456" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                                            <input type="text" placeholder="MM/YY" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                                            <input type="text" placeholder="123" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Name on Card</label>
+                                        <input type="text" placeholder="John Doe" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    </div>
+                                </div>
+                                
+                                <div id="paypal-form" class="hidden">
+                                    <div class="text-center py-8">
+                                        <p class="text-gray-600 mb-4">You will be redirected to PayPal to complete your payment</p>
+                                        <button class="px-4 py-2 bg-yellow-400 text-white rounded-md hover:bg-yellow-500">
+                                            <i class="fab fa-paypal mr-2"></i>Pay with PayPal
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <button class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        Pay $60.00 Now
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-4 text-center text-xs text-gray-500">
+                                    <p>Your payment is secured with 256-bit SSL encryption. We don't store your card details.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Receive Work -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">4</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Receive Work</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                <div class="flex items-center">
+                                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                    <p class="text-blue-700">Your tutor has uploaded the completed work. Please review before making the final payment.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-lg p-4 mb-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="font-medium">Completed Work</h4>
+                                    <span class="text-sm text-gray-500">Submitted: Today, 2:45 PM</span>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                        <div class="flex items-center">
+                                            <i class="far fa-file-pdf text-red-500 text-xl mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Calculus_Assignment_Solutions.pdf</p>
+                                                <p class="text-xs text-gray-500">2.4 MB</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                        <div class="flex items-center">
+                                            <i class="far fa-file-word text-blue-500 text-xl mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Step-by-Step_Explanations.docx</p>
+                                                <p class="text-xs text-gray-500">1.8 MB</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-gray-600">Remaining Balance:</p>
+                                    <p class="text-xl font-bold">$60.00</p>
+                                </div>
+                                <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                    Pay Remaining 50%
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5: Leave Feedback -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">5</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Leave Feedback</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="max-w-lg mx-auto">
+                                <div class="flex items-center mb-6">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Tutor" class="w-16 h-16 rounded-full mr-4">
+                                    <div>
+                                        <p class="font-medium">Dr. Michael Chen</p>
+                                        <p class="text-gray-600">Mathematics Professor</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                                    <div class="star-rating flex justify-center">
+                                        <input type="radio" id="star5" name="rating" value="5">
+                                        <label for="star5" title="5 stars">★</label>
+                                        <input type="radio" id="star4" name="rating" value="4">
+                                        <label for="star4" title="4 stars">★</label>
+                                        <input type="radio" id="star3" name="rating" value="3">
+                                        <label for="star3" title="3 stars">★</label>
+                                        <input type="radio" id="star2" name="rating" value="2">
+                                        <label for="star2" title="2 stars">★</label>
+                                        <input type="radio" id="star1" name="rating" value="1">
+                                        <label for="star1" title="1 star">★</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Review Title</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Summarize your experience">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Detailed Feedback</label>
+                                    <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="How was your experience working with this tutor?"></textarea>
+                                </div>
+                                
+                                <div class="flex items-center mb-4">
+                                    <input id="recommend" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="recommend" class="ml-2 block text-sm text-gray-700">
+                                        I would recommend this tutor to others
+                                    </label>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                        Submit Feedback
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tutor Workflow Content (Hidden by default) -->
+                <div id="tutor-content" class="space-y-8 hidden">
+                    <!-- Step 1: Browse Jobs -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">1</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Browse Jobs</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-medium text-gray-700">Open Assignments (12)</h4>
+                                    <div class="flex space-x-2">
+                                        <select class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option>All Subjects</option>
+                                            <option>Mathematics</option>
+                                            <option>Physics</option>
+                                            <option>Computer Science</option>
+                                        </select>
+                                        <select class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option>Sort By: Newest</option>
+                                            <option>Sort By: Deadline</option>
+                                            <option>Sort By: Highest Budget</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- Job 1 -->
+                                <div class="quote-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium text-indigo-600">Calculus Problem Set</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Need help solving 15 advanced calculus problems with detailed step-by-step solutions.</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Budget: <span class="font-medium">$80-$150</span></p>
+                                            <p class="text-sm text-gray-500">Due in <span class="font-medium">5 days</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-between items-center">
+                                        <div class="flex space-x-2">
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Mathematics</span>
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">University Level</span>
+                                        </div>
+                                        <button class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Submit Quote</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Job 2 -->
+                                <div class="quote-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium text-indigo-600">Linear Algebra Assignment</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Proofs and problem solving for linear algebra concepts including vector spaces and linear transformations.</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Budget: <span class="font-medium">$100-$200</span></p>
+                                            <p class="text-sm text-gray-500">Due in <span class="font-medium">7 days</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-between items-center">
+                                        <div class="flex space-x-2">
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Mathematics</span>
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Graduate Level</span>
+                                        </div>
+                                        <button class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Submit Quote</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Job 3 -->
+                                <div class="quote-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium text-indigo-600">Discrete Mathematics Problems</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Help with graph theory and combinatorics problems. Need clear explanations for each solution.</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Budget: <span class="font-medium">$60-$120</span></p>
+                                            <p class="text-sm text-gray-500">Due in <span class="font-medium">3 days</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-between items-center">
+                                        <div class="flex space-x-2">
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Computer Science</span>
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Undergraduate</span>
+                                        </div>
+                                        <button class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Submit Quote</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 flex justify-center">
+                                <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
+                                    Load More Assignments
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Submit Quote -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">2</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Submit Quote</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="max-w-2xl mx-auto">
+                                <div class="mb-6 border-b border-gray-200 pb-4">
+                                    <h4 class="font-medium text-lg">Assignment: Calculus Problem Set</h4>
+                                    <p class="text-gray-600 mt-1">Need help solving 15 advanced calculus problems with detailed step-by-step solutions.</p>
+                                    <div class="mt-2 flex space-x-2">
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Mathematics</span>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">University Level</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <p class="text-sm"><span class="font-medium">Budget:</span> $80-$150</p>
+                                        <p class="text-sm"><span class="font-medium">Deadline:</span> 5 days from now</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Your Quote Amount ($)</label>
+                                        <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="120">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Estimated Completion Time</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option>1 day</option>
+                                            <option>2 days</option>
+                                            <option selected>3 days</option>
+                                            <option>4 days</option>
+                                            <option>5 days</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Message to Client (Optional)</label>
+                                        <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Explain why you're the best fit for this assignment..."></textarea>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <button class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                            Submit Quote
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Chat & Negotiate -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">3</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Chat & Negotiate</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="flex">
+                                <!-- Sidebar with conversations -->
+                                <div class="w-1/3 border-r border-gray-200 pr-4">
+                                    <div class="mb-4">
+                                        <h4 class="font-medium">Active Conversations</h4>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="p-3 rounded-lg bg-indigo-50 cursor-pointer">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Client" class="w-10 h-10 rounded-full mr-3">
+                                                <div>
+                                                    <p class="font-medium">Sarah Johnson</p>
+                                                    <p class="text-sm text-gray-500">Calculus Problem Set</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Client" class="w-10 h-10 rounded-full mr-3">
+                                                <div>
+                                                    <p class="font-medium">David Miller</p>
+                                                    <p class="text-sm text-gray-500">Linear Algebra</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="Client" class="w-10 h-10 rounded-full mr-3">
+                                                <div>
+                                                    <p class="font-medium">Emma Wilson</p>
+                                                    <p class="text-sm text-gray-500">Discrete Math</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Chat area -->
+                                <div class="w-2/3 pl-4">
+                                    <div class="border-b border-gray-200 pb-3 mb-4">
+                                        <div class="flex items-center">
+                                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Client" class="w-10 h-10 rounded-full mr-3">
+                                            <div>
+                                                <p class="font-medium">Sarah Johnson</p>
+                                                <p class="text-sm text-gray-500">Calculus Problem Set - Quote: $120</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="h-96 overflow-y-auto mb-4 space-y-2">
+                                        <!-- Tutor message -->
+                                        <div class="chat-bubble tutor-bubble">
+                                            <p>Hello Sarah, I've reviewed your calculus assignment and can complete it within 3 days for $120. I specialize in advanced calculus and can provide detailed explanations for each solution.</p>
+                                            <p class="text-xs text-gray-500 mt-1">Yesterday, 2:30 PM</p>
+                                        </div>
+                                        
+                                        <!-- Client message -->
+                                        <div class="chat-bubble user-bubble">
+                                            <p>Hi Dr. Chen, thanks for your quote. The deadline is flexible - would you be able to do it for $100?</p>
+                                            <p class="text-xs text-gray-300 mt-1">Yesterday, 3:15 PM</p>
+                                        </div>
+                                        
+                                        <!-- Tutor message -->
+                                        <div class="chat-bubble tutor-bubble">
+                                            <p>I can meet you halfway at $110 if that works for you? I'll also include some additional practice problems related to your assignment topics.</p>
+                                            <p class="text-xs text-gray-500 mt-1">Yesterday, 3:45 PM</p>
+                                        </div>
+                                        
+                                        <!-- Client message -->
+                                        <div class="chat-bubble user-bubble">
+                                            <p>That sounds fair. I'll accept your quote. When can you start?</p>
+                                            <p class="text-xs text-gray-300 mt-1">Today, 10:30 AM</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="border-t border-gray-200 pt-3">
+                                        <div class="flex">
+                                            <input type="text" placeholder="Type your message..." class="flex-grow px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <button class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Access Files -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">4</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Access Files</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    <p class="text-green-700">Client has made the initial 50% payment. You now have full access to the assignment files.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-lg p-4 mb-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="font-medium">Assignment Files</h4>
+                                    <span class="text-sm text-gray-500">Deadline: 3 days remaining</span>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                        <div class="flex items-center">
+                                            <i class="far fa-file-pdf text-red-500 text-xl mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Calculus_Problems.pdf</p>
+                                                <p class="text-xs text-gray-500">3.2 MB</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                        <div class="flex items-center">
+                                            <i class="far fa-file-word text-blue-500 text-xl mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Instructions.docx</p>
+                                                <p class="text-xs text-gray-500">1.1 MB</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-1 text-gray-500 hover:text-indigo-600">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <h4 class="font-medium mb-2">Work Progress</h4>
+                                <div class="progress-bar w-full mb-2">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                                <p class="text-sm text-gray-600">60% completed - Estimated completion: Tomorrow</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5: Deliver Work -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <span class="text-indigo-600 font-bold">5</span>
+                            </div>
+                            <h3 class="text-lg font-semibold">Deliver Work</h3>
+                        </div>
+                        <div class="ml-11">
+                            <div class="max-w-2xl mx-auto">
+                                <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                        <p class="text-blue-700">Please upload all completed files. The client will review before releasing the final payment.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Completed Files</label>
+                                    <div class="file-upload mt-1 flex justify-center px-6 pt-5 pb-6 border-2 rounded-md">
+                                        <div class="space-y-1 text-center">
+                                            <div class="flex text-sm text-gray-600 justify-center">
+                                                <label class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
+                                                    <span>Upload files</span>
+                                                    <input type="file" class="sr-only" multiple>
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">PDF, DOCX, PPT up to 10MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes for Client (Optional)</label>
+                                    <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Add any important notes about the completed work..."></textarea>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <button class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                        Deliver Completed Work
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-medium mb-2">Payment Status</h4>
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="text-gray-600">Initial Payment (50%)</p>
+                                            <p class="font-medium text-green-600">$55.00 received</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-600">Final Payment (50%)</p>
+                                            <p class="font-medium text-gray-600">Pending client approval</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.getElementById('client-tab').addEventListener('click', function() {
+            document.getElementById('client-content').classList.remove('hidden');
+            document.getElementById('tutor-content').classList.add('hidden');
+            document.getElementById('client-tab').classList.add('active-tab');
+            document.getElementById('tutor-tab').classList.remove('active-tab');
+        });
+        
+        document.getElementById('tutor-tab').addEventListener('click', function() {
+            document.getElementById('tutor-content').classList.remove('hidden');
+            document.getElementById('client-content').classList.add('hidden');
+            document.getElementById('tutor-tab').classList.add('active-tab');
+            document.getElementById('client-tab').classList.remove('active-tab');
+        });
+        
+        // Payment method toggle
+        document.getElementById('credit-card').addEventListener('change', function() {
+            document.getElementById('credit-card-form').classList.remove('hidden');
+            document.getElementById('paypal-form').classList.add('hidden');
+        });
+        
+        document.getElementById('paypal').addEventListener('change', function() {
+            document.getElementById('paypal-form').classList.remove('hidden');
+            document.getElementById('credit-card-form').classList.add('hidden');
+        });
+        
+        // Star rating functionality
+        const stars = document.querySelectorAll('.star-rating label');
+        stars.forEach((star, index) => {
+            star.addEventListener('click', () => {
+                // Reset all stars
+                stars.forEach(s => s.style.color = '#cbd5e0');
+                
+                // Fill clicked star and all previous stars
+                for (let i = 0; i <= index; i++) {
+                    stars[i].style.color = '#f59e0b';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
